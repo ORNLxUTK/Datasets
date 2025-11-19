@@ -9,7 +9,7 @@ def create_original_directory_structure(
 ):
     copyfrom_annotations_dir = roboflow_annotations_dir / "Annotations"
 
-    JPGImages_dir = root_save_dir / roboflow_annotations_dir.stem / "JPGImages"
+    JPGImages_dir = root_save_dir / roboflow_annotations_dir.stem / "JPEGImages"
     JPGImages_dir.mkdir(parents=True, exist_ok=True)
     Annotations_dir = root_save_dir / roboflow_annotations_dir.stem / "Annotations"
     Annotations_dir.mkdir(parents=True, exist_ok=True)
@@ -23,6 +23,7 @@ def create_original_directory_structure(
         new_annotations_dir.mkdir(parents=True, exist_ok=True)
         for file in files:
             file = Path(file)
+            print(dir_path / file)
             shutil.copy(dir_path / file, new_images_dir / file)
             assert (copyfrom_annotations_dir / (file.stem + ".png")).exists(), (
                 f"Error: {copyfrom_annotations_dir / (file.stem + '.png')} does not exist"
@@ -50,6 +51,7 @@ def main():
     )
     original_dirs = [
         "/Users/calwetzel/Downloads/WAAMlabeledDataset/Roboflow_SAM2_Frames",
+        "/Users/calwetzel/Desktop/COSC/ORNL/TIGdata/Plasma/dataset",
         "/Volumes/Extreme SSD/ORNL/TIG/dataset",
         "/Users/calwetzel/Desktop/COSC/ORNL/SCOPSdata/irPOLYMER",
         "/Users/calwetzel/Desktop/COSC/ORNL/SCOPSdata/visPOLYMER",
