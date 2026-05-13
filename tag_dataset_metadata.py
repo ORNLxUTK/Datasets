@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Embed authorship + dataset metadata into every image of DatainBriefDataset.
+"""Embed authorship + dataset metadata into every image of AMVOS.
 
 Run from the repo root:
-    python tag_dataset_metadata.py --root DatainBriefDataset            # write
-    python tag_dataset_metadata.py --root DatainBriefDataset --dry-run  # preview
+    python tag_dataset_metadata.py --root AMVOS            # write
+    python tag_dataset_metadata.py --root AMVOS --dry-run  # preview
 
 Modifies files in place. Pre-existing EXIF (JPEG) and text chunks (PNG) are
 preserved; new fields are merged in.
@@ -40,8 +40,9 @@ AUTHORS = [
 ]
 AUTHORS_STR = "; ".join(AUTHORS)
 LOCATION = "Oak Ridge National Laboratory Manufacturing Demonstration Facility (MDF), Oak Ridge, TN, USA"
+COLLECTION = "AMVOS (Additive Manufacturing Video Object Segmentation)"
 COPYRIGHT = f"(C) ORNL MDF -- {AUTHORS_STR}"
-SOFTWARE = "tag_dataset_metadata.py v2"
+SOFTWARE = "tag_dataset_metadata.py v3"
 
 # White (255,255,255) and Green (0,255,0) class semantics per dataset.
 DATASETS: dict[str, dict[str, str]] = {
@@ -197,6 +198,7 @@ def classify(path: Path, root: Path) -> dict | None:
 def build_payload(c: dict) -> dict:
     ds = c["dataset"]
     return {
+        "collection": COLLECTION,
         "authors": AUTHORS,
         "dataset": ds,
         "location": LOCATION,
@@ -215,7 +217,7 @@ def description_line(c: dict) -> str:
     cls = DATASETS[ds]
     cam = CAMERAS[ds]
     return (
-        f"{ds} {c['image_type']} image; "
+        f"AMVOS · {ds} {c['image_type']} image; "
         f"video {c['video_id']} frame {c['frame_id']} ({c['split'] or 'unsplit'}); "
         f"{cam['make']} {cam['model']} @ {cam['fps']} fps ({cam['resolution']}, {cam['modality']}); "
         f"classes (255,255,255)={cls['(255,255,255)']}, (0,255,0)={cls['(0,255,0)']}; "
@@ -259,7 +261,7 @@ def tag_jpeg(path: Path, c: dict) -> None:
 # double-up on re-runs), always rewritten fresh.
 _OWNED_PNG_KEYS = {
     "Author", "Copyright", "Description", "Software",
-    "Dataset", "Location", "ImageType", "Classes", "MetadataJSON",
+    "Collection", "Dataset", "Location", "ImageType", "Classes", "MetadataJSON",
     "Camera", "CameraMake", "CameraModel", "FrameRate", "Resolution",
     "Modality", "Mount", "VideoNumber", "FrameNumber", "Split",
     "Process", "Equipment",
@@ -303,6 +305,7 @@ def tag_png(path: Path, c: dict) -> None:
     info.add_text("Copyright", COPYRIGHT)
     info.add_text("Description", desc)
     info.add_text("Software", SOFTWARE)
+    info.add_text("Collection", COLLECTION)
     info.add_text("Dataset", ds)
     info.add_text("Location", LOCATION)
     info.add_text("ImageType", c["image_type"])
@@ -334,7 +337,7 @@ def tag_png(path: Path, c: dict) -> None:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument(
-        "--root", type=Path, required=True, help="Path to DatainBriefDataset/"
+        "--root", type=Path, required=True, help="Path to AMVOS/"
     )
     ap.add_argument(
         "--dry-run",
